@@ -49,18 +49,13 @@ def find_path (source_point, destination_point, mesh):
     came_from = {src : None}
     cost_so_far = {src: 0}
     heappush(queue, (0, src))
-
+ 
+    # A* searching algorithm
     while queue:
         current_cost, current_box = heappop(queue)
 
         if current_box == dst:
-            path = [destination_point]
-            last_box = came_from[current_box]
-            last_detail_point = detail_points[current_box]
-            while last_box is not None:
-                path.insert(0, last_detail_point)
-                last_detail_point = detail_points[last_box]
-                last_box = came_from[last_box]
+            box_path = path_to_box(current_box, came_from)
             print("found destination")
             break
 
@@ -73,52 +68,35 @@ def find_path (source_point, destination_point, mesh):
                 priority = new_cost + euclidean_distance(destination_point, detail_point_and_cost[0])
                 heappush(queue, (priority, next))
                 came_from[next] = current_box
-
-    # # for graph search algorithm
-    # came_from = {src : None}
-    # queue = [] # queue of boxes
-    # queue.append(src)
-    # box_path = []
-
-    # # dictionary that stores (x,y) of each landing point. box : point
-    # detail_points = {src : source_point} 
-    # total_path_cost = 0
-
-    # while queue:
-    #     current = queue.pop(0)
-    #     box_path.append(current)
-    #     # print ("current:")
-    #     # print (current)
-    #     if current == dst:
-    #         print ("found destination")
-    #         break
-    #     for next in adj[current]:
-    #         detail_point_cost = find_detail_points(current, next, detail_points, source_point, destination_point)
-    #         if next not in came_from:
-    #             detail_points[next] = detail_point_cost[0]
-    #             # print("detail points: ")
-    #             # print(detail_points[next])
-    #             queue.append(next)
-    #             came_from[next] = current
     
-    
-    # for key in detail_points:
-    #     path.append(detail_points[key])
+    path.append(source_point)
+    print("--------------------")
 
-    # path.append(destination_point)
+    for next in box_path:
+        print("in next in box_path, box = ", next)
+        path.append(detail_points[next])
+
+    path.append(destination_point)
     print("path:")
     print(path)
     return path, boxes
 
-
+# given a coordinates of a point, find the box that the point is located at
 def find_box(box_list, point):
     for box in box_list:
         if (point[0] > box[0] and point[0] < box[1] and 
             point[1] > box[2] and point[1] < box[3]) :
             return box
 
-def find_detail_points(box_1, box_2, detail_points, source_point, destination_point):
+# find the final path 
+def path_to_box(box, paths):
+    if box == None:
+        return []
+    print("in path_to_box, box = ", box)
+    return path_to_box(paths[box], paths) + [box]
 
+# find the detail points to land on boxes. Returns (point(x,y), cost from box_1 to box_2)
+def find_detail_points(box_1, box_2, detail_points, source_point, destination_point):
     # ranges of next point
     x_range = [max(box_1[0], box_2[0]), min(box_1[1], box_2[1])]
     y_range = [max(box_1[3], box_2[3]), min(box_1[2], box_2[2])]
@@ -159,17 +137,10 @@ def find_detail_points(box_1, box_2, detail_points, source_point, destination_po
     # elif mid_cost < a_cost and mid_cost < b_cost:
     #     cost = mid_cost
     #     detail_point = (mid_point[0], mid_point[1])
-
     return (detail_point, cost)
 
 def euclidean_distance(point_1, point_2):
     return sqrt((point_1[0] - point_2[0])**2 + (point_1[1] - point_2[1])**2) * 0.5
-
-
-def path_to_box(box, paths):
-    if box == []:
-        return []
-    return path_to_cell(paths[cell], paths) + [cell]
 
     return path, boxes.keys()
 

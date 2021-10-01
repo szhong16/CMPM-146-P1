@@ -19,8 +19,6 @@ def find_path (source_point, destination_point, mesh):
     path = []
     boxes = {}
 
-    
-
     # extract args
     allBoxes = mesh['boxes']
     # print(allBoxes)
@@ -60,6 +58,7 @@ def find_path (source_point, destination_point, mesh):
             break
 
         for next in adj[current_box]:
+            boxes[next] = current_box
             detail_point_and_cost = find_detail_points(current_box, next, detail_points, source_point, destination_point)
             new_cost = current_cost + detail_point_and_cost[1]  
             if next not in cost_so_far or new_cost < cost_so_far[next]:
@@ -79,7 +78,7 @@ def find_path (source_point, destination_point, mesh):
     path.append(destination_point)
     print("path:")
     print(path)
-    return path, boxes
+    return path, box_path
 
 # given a coordinates of a point, find the box that the point is located at
 def find_box(box_list, point):
@@ -99,7 +98,7 @@ def path_to_box(box, paths):
 def find_detail_points(box_1, box_2, detail_points, source_point, destination_point):
     # ranges of next point
     x_range = [max(box_1[0], box_2[0]), min(box_1[1], box_2[1])]
-    y_range = [max(box_1[3], box_2[3]), min(box_1[2], box_2[2])]
+    y_range = [max(box_1[2], box_2[2]), min(box_1[3], box_2[3])]
 
     # find bxmin, bxmax
     if x_range[0] <= x_range[1]:
@@ -119,24 +118,6 @@ def find_detail_points(box_1, box_2, detail_points, source_point, destination_po
 
     detail_point = (max(bxmin, min(bxmax, source_point[0])), max(bymin, min(bymax,source_point[1])))
     cost = euclidean_distance(detail_point, detail_points[box_1])
-    # mid point 
-    # mid_point = [(x_range[0] + x_range[1])/2, (y_range[0] + y_range[1])/2]
-
-    # find costs for each range
-    # a_cost = euclidean_distance((x_range[0], y_range[0]), detail_points[box_1]) + euclidean_distance(destination_point, (x_range[0], y_range[0]))
-    # b_cost = euclidean_distance((x_range[1], y_range[1]), detail_points[box_1]) + euclidean_distance(destination_point, (x_range[1], y_range[1]))
-    # mid_cost = euclidean_distance((mid_point[0], mid_point[1]), detail_points[box_1]) + euclidean_distance(destination_point, (mid_point[0], mid_point[1]))
-
-    # # find lowest cost 
-    # if a_cost <= b_cost and a_cost <= mid_cost: 
-    #     cost = a_cost
-    #     detail_point = (x_range[0], y_range[0])
-    # elif b_cost < a_cost and b_cost < mid_cost:
-    #     cost = b_cost
-    #     detail_point = (x_range[1], y_range[1])
-    # elif mid_cost < a_cost and mid_cost < b_cost:
-    #     cost = mid_cost
-    #     detail_point = (mid_point[0], mid_point[1])
     return (detail_point, cost)
 
 def euclidean_distance(point_1, point_2):

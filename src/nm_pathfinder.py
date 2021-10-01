@@ -78,7 +78,7 @@ def find_path (source_point, destination_point, mesh):
     path.append(destination_point)
     print("path:")
     print(path)
-    return path, box_path
+    return path, boxes
 
 # given a coordinates of a point, find the box that the point is located at
 def find_box(box_list, point):
@@ -123,11 +123,7 @@ def find_detail_points(box_1, box_2, detail_points, source_point, destination_po
 def euclidean_distance(point_1, point_2):
     return sqrt((point_1[0] - point_2[0])**2 + (point_1[1] - point_2[1])**2) * 0.5
 
-    return path, boxes.keys()
-
 def transition_cost(level, cell, cell2):
     distance = sqrt((cell2[0] - cell[0])**2 + (cell2[1] - cell[1])**2)
     average_cost = (level['spaces'][cell] + level['spaces'][cell2])/2
     return distance * average_cost
-
-

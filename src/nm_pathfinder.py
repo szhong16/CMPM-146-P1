@@ -56,43 +56,61 @@ def find_path (source_point, destination_point, mesh):
     # A* searching algorithm
     while queue:
         current_cost, current_box, current_goal= heappop(queue)
-        print("current_box: ", current_box)
-        print("current_goal: ", current_goal)
+        # print("current_box: ", current_box)
+        # print("current_goal: ", current_goal)
         if current_box == current_goal or (came_from_forward.get(current_box) is not None and came_from_backward.get(current_box) is not None and came_from_forward[current_box] == came_from_backward[current_box]):
-            box_path = path_to_box(current_box, came_from_forward)
-            box_path = box_path + path_to_box(current_box, came_from_backward)
-            print("found destination")
+            if current_box == current_goal:
+                print("current_box == current_goal")
+                if current_goal == dst:
+                    box_path = path_to_box(current_box, came_from_forward)
+                    print("found destination: current_box == dst")
+                    break
+                elif current_goal == src:
+                    box_path = path_to_box(current_box, came_from_backward)
+                    print("found destination: current_box == src")
+            else:
+                box_path_1 = path_to_box(current_box, came_from_forward)
+                print("came_from_forward box_path_1: ", box_path_1)
+                box_path_2 = path_to_box(current_box, came_from_backward)
+                print("came_from_backward box_path_2: ", box_path_2)
+                box_path_2 = list(reversed(box_path_2))
+                box_path = box_path_1 + box_path_2
+                print("found destination: current_box != current_goal")
             break
 
         for next in adj[current_box]:
             boxes[next] = current_box
             # chech which is the source point
             if current_goal == dst:
-                print("current_goal == dst")
+                # print("current_goal == dst")
                 detail_point_and_cost = find_detail_points(current_box, next, detail_points, source_point)
                 new_cost = current_cost + detail_point_and_cost[1]  
                 if next not in cost_so_far_forward or new_cost < cost_so_far_forward[next]:
-                    detail_points[next] = detail_point_and_cost[0]
+                    if next not in detail_points.keys():
+                        detail_points[next] = detail_point_and_cost[0]
                     cost_so_far_forward[next] = new_cost
                     priority = new_cost + euclidean_distance(current_goal, detail_point_and_cost[0])
                     heappush(queue, (priority, next, current_goal))
                     came_from_forward[next] = current_box
             elif current_goal == src:  
-                print("current_goal == src")
+                # print("current_goal == src")
                 detail_point_and_cost = find_detail_points(current_box, next, detail_points, destination_point)
                 new_cost = current_cost + detail_point_and_cost[1]  
                 if next not in cost_so_far_backward or new_cost < cost_so_far_backward[next]:
-                    detail_points[next] = detail_point_and_cost[0]
+                    if next not in detail_points.keys():
+                        detail_points[next] = detail_point_and_cost[0]
                     cost_so_far_backward[next] = new_cost
                     priority = new_cost + euclidean_distance(current_goal, detail_point_and_cost[0])
                     heappush(queue, (priority, next, current_goal))
                     came_from_backward[next] = current_box
     
-    path.append(source_point)
+    # path.append(source_point)
     print("--------------------")
 
+    box_path = list(dict.fromkeys(box_path))
+    print("box_path = ", box_path)
     for next in box_path:
-        print("in next in box_path, box = ", next)
+        print("in 'for next in box_path', box = ", next)
         path.append(detail_points[next])
 
     path.append(destination_point)
@@ -137,7 +155,6 @@ def find_detail_points(box_1, box_2, detail_points, source_point):
         bymax = y_range[0]
 
     detail_point = (max(bxmin, min(bxmax, source_point[0])), max(bymin, min(bymax,source_point[1])))
-    print("detail_points[box_1]", detail_points[box_1])
     cost = euclidean_distance(detail_point, detail_points[box_1])
     return (detail_point, cost)
 

@@ -58,11 +58,12 @@ def find_path (source_point, destination_point, mesh):
     # A* searching algorithm
     while queue:
         current_cost, current_box, current_goal= heappop(queue)
-        # print("current_box: ", current_box)
+        print("current_priority: ", current_cost)
         # print("current_goal: ", current_goal)
-        if current_box == current_goal or (came_from_forward.get(current_box) is not None and came_from_backward.get(current_box) is not None):
+        if current_box == current_goal or came_from_forward.get(current_box) is not None or came_from_backward.get(current_box) is not None:
             print("current_box: ", current_box)
             print("current_goal: ", current_goal)
+            
             if current_box == current_goal:
                 print("current_box == current_goal")
                 if current_goal == dst:
@@ -78,39 +79,43 @@ def find_path (source_point, destination_point, mesh):
 
             # if two directions intersects
             else:
-                box_path_1 = path_to_box(current_box, came_from_forward)
-                print("came_from_forward box_path_1: ", box_path_1)
-                box_path_2 = path_to_box(current_box, came_from_backward)
-                print("came_from_backward box_path_2: ", box_path_2)
-                box_path_2 = list(reversed(box_path_2))
-                path = box_path_to_detail_point_path(box_path_1, detail_points_forward) + box_path_to_detail_point_path(box_path_2, detail_points_backward)
-                # box_path = box_path_1 + box_path_2
-                print("found destination: current_box != current_goal")
-            break
+                if (came_from_forward.get(current_box) is not None and current_goal != dst) or (came_from_backward.get(current_box) is not None and current_goal != src):
+                    box_path_1 = path_to_box(current_box, came_from_forward)
+                    print("came_from_forward box_path_1: ", box_path_1)
+                    box_path_2 = path_to_box(current_box, came_from_backward)
+                    print("came_from_backward box_path_2: ", box_path_2)
+                    box_path_2 = list(reversed(box_path_2))
+                    path = box_path_to_detail_point_path(box_path_1, detail_points_forward) + box_path_to_detail_point_path(box_path_2, detail_points_backward)
+                    # box_path = box_path_1 + box_path_2
+                    print("found destination: current_box != current_goal")
+                    break
         
         for next in adj[current_box]:
-            boxes[next] = current_box
             # chech which is the source point
             if current_goal == dst:
                 # print("current_goal == dst")
-                detail_point_and_cost = find_detail_points(current_box, next, detail_points_forward, current_goal)
+                detail_point_and_cost = find_detail_points(current_box, next, detail_points_forward, source_point)
                 new_cost = current_cost + detail_point_and_cost[1]  
                 if next not in cost_so_far_forward or new_cost < cost_so_far_forward[next]:
+                    boxes[next] = current_box
                     if next not in detail_points_forward.keys():
                         detail_points_forward[next] = detail_point_and_cost[0]
                     cost_so_far_forward[next] = new_cost
                     priority = new_cost + euclidean_distance(current_goal, detail_point_and_cost[0])
+                    print("in current_goal == dst, priority = ", priority)
                     heappush(queue, (priority, next, current_goal))
                     came_from_forward[next] = current_box
             elif current_goal == src:  
+                boxes[next] = current_box
                 # print("current_goal == src")
-                detail_point_and_cost = find_detail_points(current_box, next, detail_points_backward, current_goal)
+                detail_point_and_cost = find_detail_points(current_box, next, detail_points_backward, destination_point)
                 new_cost = current_cost + detail_point_and_cost[1]  
                 if next not in cost_so_far_backward or new_cost < cost_so_far_backward[next]:
                     if next not in detail_points_backward.keys():
                         detail_points_backward[next] = detail_point_and_cost[0]
                     cost_so_far_backward[next] = new_cost
                     priority = new_cost + euclidean_distance(current_goal, detail_point_and_cost[0])
+                    print("in current_goal == src, priority = ", priority)
                     heappush(queue, (priority, next, current_goal))
                     came_from_backward[next] = current_box
     
@@ -122,7 +127,7 @@ def find_path (source_point, destination_point, mesh):
     # for next in box_path:
     #     print("in 'for next in box_path', box = ", next)
     #     path.append(detail_points[next])
-
+    path.append(destination_point)
     print("path:")
     print(path)
     return path, boxes

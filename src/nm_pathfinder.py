@@ -40,7 +40,7 @@ def find_path (source_point, destination_point, mesh):
     print("source_point, destination_point:")
     print(source_point, destination_point)
   
-    path.append(source_point)
+    # path.append(source_point)
 
     # for graph search algorithm
     queue = [] # queue of boxes (priority, curr_box, goal_box)
@@ -122,14 +122,14 @@ def find_path (source_point, destination_point, mesh):
     # path.append(source_point)
     print("--------------------")
 
-    # box_path = list(dict.fromkeys(box_path))
-    # print("box_path = ", box_path)
-    # for next in box_path:
-    #     print("in 'for next in box_path', box = ", next)
-    #     path.append(detail_points[next])
-    path.append(destination_point)
+    # check if there is a path
+    if not bool(path):
+        print("path not found")
+        return path, boxes
+
     print("path:")
     print(path)
+    path.append(destination_point)
     return path, boxes
 
 # given a box_path, find the exact landing points to a box from detail_points list
@@ -181,8 +181,3 @@ def find_detail_points(box_1, box_2, detail_points, source_point):
 
 def euclidean_distance(point_1, point_2):
     return sqrt((point_1[0] - point_2[0])**2 + (point_1[1] - point_2[1])**2) * 0.5
-
-def transition_cost(level, cell, cell2):
-    distance = sqrt((cell2[0] - cell[0])**2 + (cell2[1] - cell[1])**2)
-    average_cost = (level['spaces'][cell] + level['spaces'][cell2])/2
-    return distance * average_cost

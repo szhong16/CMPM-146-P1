@@ -32,7 +32,7 @@ def find_path (source_point, destination_point, mesh):
     print("dst:")
     print(dst)
 
-    if dst == None:
+    if dst == None or src == None:
         print("path not found")
         return path, boxes
 
@@ -58,7 +58,7 @@ def find_path (source_point, destination_point, mesh):
         current_cost, current_box, current_goal= heappop(queue)
         # print("current_box: ", current_box)
         # print("current_goal: ", current_goal)
-        if current_box == current_goal or (came_from_forward.get(current_box) is not None and came_from_backward.get(current_box) is not None and came_from_forward[current_box] == came_from_backward[current_box]):
+        if current_box == current_goal or (came_from_forward.get(current_box) is not None and came_from_backward.get(current_box) is not None):
             if current_box == current_goal:
                 print("current_box == current_goal")
                 if current_goal == dst:
@@ -107,16 +107,15 @@ def find_path (source_point, destination_point, mesh):
     # path.append(source_point)
     print("--------------------")
 
-    box_path = list(dict.fromkeys(box_path))
+    # box_path = list(dict.fromkeys(box_path))
     print("box_path = ", box_path)
     for next in box_path:
         print("in 'for next in box_path', box = ", next)
         path.append(detail_points[next])
 
-    path.append(destination_point)
     print("path:")
     print(path)
-    return path, boxes
+    return path, allBoxes
 
 # given a coordinates of a point, find the box that the point is located at
 def find_box(box_list, point):

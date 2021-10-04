@@ -4,6 +4,9 @@ from math import inf, sqrt
 def find_path (source_point, destination_point, mesh):
 
     """
+    Jiaying Hou
+    Sijia Zhong
+
     Searches for a path from source_point to destination_point through the mesh
 
     Args:
@@ -29,10 +32,8 @@ def find_path (source_point, destination_point, mesh):
 
     # check if arguments exist
     if dst == None or src == None:
-        print("path not found")
+        print("path not found, illegal source/destination point")
         return path, boxes
-  
-    # path.append(source_point)
 
     # for graph search algorithm
     queue = [] # queue of boxes (priority, curr_box, goal_box)
@@ -62,12 +63,16 @@ def find_path (source_point, destination_point, mesh):
                     path = box_path_to_detail_point_path(box_path, detail_points_backward)
                     break
 
-            # if two directions intersects
+            # if two directions intersect
             else:
                 if (came_from_forward.get(current_box) is not None and current_goal != dst) or (came_from_backward.get(current_box) is not None and current_goal != src):
                     box_path_1 = path_to_box(current_box, came_from_forward)
                     box_path_2 = path_to_box(current_box, came_from_backward)
                     box_path_2 = list(reversed(box_path_2))
+                    print("-------------------------------------------------")
+                    print("current_box: ", current_box)
+                    print("box_path_1: ", box_path_1)
+                    print("box_path_2: ", box_path_2)
                     path = box_path_to_detail_point_path(box_path_1, detail_points_forward) + box_path_to_detail_point_path(box_path_2, detail_points_backward)
                     break
         
@@ -78,8 +83,7 @@ def find_path (source_point, destination_point, mesh):
                 new_cost = current_cost + detail_point_and_cost[1]  
                 if next not in cost_so_far_forward or new_cost < cost_so_far_forward[next]:
                     boxes[next] = current_box
-                    if next not in detail_points_forward.keys():
-                        detail_points_forward[next] = detail_point_and_cost[0]
+                    detail_points_forward[next] = detail_point_and_cost[0]
                     cost_so_far_forward[next] = new_cost
                     priority = new_cost + euclidean_distance(current_goal, detail_point_and_cost[0])
                     heappush(queue, (priority, next, current_goal))
@@ -89,14 +93,11 @@ def find_path (source_point, destination_point, mesh):
                 detail_point_and_cost = find_detail_points(current_box, next, detail_points_backward, destination_point)
                 new_cost = current_cost + detail_point_and_cost[1]  
                 if next not in cost_so_far_backward or new_cost < cost_so_far_backward[next]:
-                    if next not in detail_points_backward.keys():
-                        detail_points_backward[next] = detail_point_and_cost[0]
+                    detail_points_backward[next] = detail_point_and_cost[0]
                     cost_so_far_backward[next] = new_cost
                     priority = new_cost + euclidean_distance(current_goal, detail_point_and_cost[0])
                     heappush(queue, (priority, next, current_goal))
                     came_from_backward[next] = current_box
-    
-    # path.append(source_point)
 
     # check if there is a path
     if not bool(path):
